@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groww Pulse | AI Control Tower & Sentiment Studio</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Plotly.js CDN for Interactive 2D Embeddings -->
+    <script>window.__plotlyLoaded = false; window.__plotlyFailed = false;</script>
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"
+            onload="window.__plotlyLoaded = true;"
+            onerror="window.__plotlyFailed = true; console.error('Failed to load Plotly CDN.');"></script>
+    <!-- Custom Rich CSS -->
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Navigation Brand Header -->
+        <header class="navbar glass-card">
+            <div class="nav-brand">
+                <div class="pulse-icon-wrapper">
+                    <span class="neon-dot pulse-anim"></span>
+                </div>
+                <div class="brand-text">
+                    <h1>GROWW PULSE <span class="badge-sub">AI CONTROL TOWER</span></h1>
+                    <p class="subtitle">Autonomous Play Store NLP Pipeline & MCP Delivery Studio</p>
+                </div>
+            </div>
+
+            <div class="nav-controls">
+                <div class="control-group">
+                    <label for="week-select">Target ISO Week</label>
+                    <input type="text" id="week-select" class="input-glow" placeholder="2026-W27" value="2026-W27">
+                </div>
+                
+                <div class="toggle-wrapper">
+                    <label class="switch">
+                        <input type="checkbox" id="dry-run-toggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                    <span class="toggle-label" title="When active, executes ML analysis without making live Google Doc or Gmail MCP calls.">Dry-Run Mode</span>
+                </div>
+
+                <button id="trigger-run-btn" class="btn-neon">
+                    <span class="btn-icon">⚡</span> Trigger Pulse Run
+                </button>
+            </div>
+        </header>
+
+        <!-- Live Execution Pipeline Progress Bar -->
+        <section class="pipeline-section glass-card">
+            <div class="section-header">
+                <h3>Pipeline Stage Telemetry</h3>
+                <span id="pipeline-status-text" class="status-pill status-ready">STANDBY</span>
+            </div>
+            <div class="pipeline-steps">
+                <div class="step" id="step-ingest">
+                    <div class="step-num">01</div>
+                    <div class="step-label">Ingestion & Scrubbing</div>
+                </div>
+                <div class="step-line"></div>
+                <div class="step" id="step-embed">
+                    <div class="step-num">02</div>
+                    <div class="step-label">BGE Embeddings</div>
+                </div>
+                <div class="step-line"></div>
+                <div class="step" id="step-cluster">
+                    <div class="step-num">03</div>
+                    <div class="step-label">UMAP / HDBSCAN</div>
+                </div>
+                <div class="step-line"></div>
+                <div class="step" id="step-llm">
+                    <div class="step-num">04</div>
+                    <div class="step-label">Groq LLM Synthesis</div>
+                </div>
+                <div class="step-line"></div>
+                <div class="step" id="step-validate">
+                    <div class="step-num">05</div>
+                    <div class="step-label">Quote Validation</div>
+                </div>
+                <div class="step-line"></div>
+                <div class="step" id="step-deliver">
+                    <div class="step-num">06</div>
+                    <div class="step-label">MCP Delivery & Ledger</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- KPI Metric Overview Cards -->
+        <section class="kpi-grid">
+            <div class="kpi-card glass-card">
+                <span class="kpi-title">Reviews Analyzed</span>
+                <div class="kpi-val" id="kpi-reviews">--</div>
+                <span class="kpi-sub">Rolling window dataset</span>
+            </div>
+            <div class="kpi-card glass-card">
+                <span class="kpi-title">Active Themes</span>
+                <div class="kpi-val" id="kpi-themes">--</div>
+                <span class="kpi-sub">HDBSCAN semantic clusters</span>
+            </div>
+            <div class="kpi-card glass-card">
+                <span class="kpi-title">System Status</span>
+                <div class="kpi-val kpi-accent" id="kpi-state">ONLINE</div>
+                <span class="kpi-sub">SQLite Ledger Connected</span>
+            </div>
+            <div class="kpi-card glass-card">
+                <span class="kpi-title">Latest Run Idempotency</span>
+                <div class="kpi-val" id="kpi-idemp">READY</div>
+                <span class="kpi-sub">No duplicates detected</span>
+            </div>
+        </section>
+
+        <!-- Main Workspace Split Section: Scatter Plot & Quote Studio -->
+        <section class="workspace-grid">
+            <!-- Left: Interactive UMAP Cluster 2D Plot -->
+            <div class="panel glass-card plot-panel">
+                <div class="panel-header">
+                    <div class="header-titles">
+                        <h2>Semantic Cluster Scatter Plot (2D UMAP)</h2>
+                        <p>Interactive vector embedding space. Hover over dots to inspect review feedback and rating.</p>
+                    </div>
+                    <button id="refresh-plot-btn" class="btn-secondary">🔄 Reload Canvas</button>
+                </div>
+                <div id="cluster-plot-container" class="plot-box">
+                    <div class="loading-spinner">Loading 2D semantic embedding space...</div>
+                </div>
+            </div>
+
+            <!-- Right: Interactive Themes & Verified Quote Drawer -->
+            <div class="panel glass-card theme-panel">
+                <div class="panel-header">
+                    <div class="header-titles">
+                        <h2>Theme Insights & Action Ideas</h2>
+                        <p>Validated direct quotes and engineering recommendations.</p>
+                    </div>
+                </div>
+                <div id="theme-accordion-list" class="theme-list">
+                    <div class="empty-state">No themes loaded. Trigger a run or select a historical audit run below!</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom Section: SQLite Audit Ledger Grid -->
+        <section class="ledger-section glass-card">
+            <div class="panel-header">
+                <div class="header-titles">
+                    <h2>Audit Ledger & MCP Delivery History</h2>
+                    <p>Real-time transaction log recorded in <code>data/ledger.db</code>.</p>
+                </div>
+                <button id="refresh-ledger-btn" class="btn-secondary">📑 Refresh Ledger</button>
+            </div>
+            <div class="table-responsive">
+                <table class="ledger-table">
+                    <thead>
+                        <tr>
+                            <th>ISO Week</th>
+                            <th>Run ID</th>
+                            <th>Status</th>
+                            <th>Reviews</th>
+                            <th>Started At (UTC)</th>
+                            <th>Google Doc Section</th>
+                            <th>Gmail Draft Teaser</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ledger-tbody">
+                        <tr>
+                            <td colspan="8" class="text-center">Loading audit records...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

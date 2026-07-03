@@ -1,0 +1,17 @@
+product: groww
+display_name: Groww
+play_store:
+  app_id: com.nextbillion.groww
+ingestion:
+  window_weeks: 10
+  min_reviews: 15
+  max_reviews: 5000
+  min_words: 8
+  allowed_language: en
+delivery:
+  google_doc_id: "<SHARED_DOC_ID>"
+  email:
+    recipients:
+      - product-leads@example.com
+      - support-leads@example.com
+    default_mode: draft
